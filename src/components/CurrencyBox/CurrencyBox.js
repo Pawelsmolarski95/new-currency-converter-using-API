@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import Container from "../Container/Container";
 import CurrencyInput from "../CurrencyInput/CurrencyInput";
 import Title from "../Title/Title";
-import axios from "axios";
 import { FcCurrencyExchange } from 'react-icons/fc';
 import styles from "./CurrencyBox.module.scss"
+import axios from "axios";
+import { format } from "../../utils/format"
+
+
 
 const CurrencyBox = () => {
     
@@ -22,8 +25,10 @@ const CurrencyBox = () => {
       axios.get("https://v6.exchangerate-api.com/v6/5f3fee8abd2ef54e63a6a8eb/latest/USD")
       .then(response => {
         setConversion_rates(response.data.conversion_rates)
-        
       })
+      .catch((error => {
+        console.log("error", error);
+      }))
     }, []);
     
     useEffect(()=> {
@@ -35,33 +40,26 @@ const CurrencyBox = () => {
       }
     }, [conversion_rates])
     
-    
-    const format = (number) => {
-        return (
-          number.toFixed(4)
-        )}
         
-        function handleAmount1Change(amount1) {
-          
-          setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
-          setAmount1(amount1)
-          
-        }
-        function handleCurrency1Change(currency1) {
-          
-          setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
-          setCurrency1(currency1)
-        }
+    const  handleAmount1Change = (amount1) => {
+        setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
+        setAmount1(amount1)
+    }
         
-        function handleAmount2Change(amount2) {
-          setAmount1(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
-          setAmount2(amount2)
-        }
+    const  handleCurrency1Change = (currency1) => {
+        setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
+        setCurrency1(currency1)
+    }
         
-        function handleCurrency2Change(currency2) {
-          setAmount2(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
-          setCurrency2(currency2)
-        }
+    const  handleAmount2Change = (amount2) => {
+        setAmount1(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
+        setAmount2(amount2)
+    }
+        
+    const  handleCurrency2Change = (currency2) => {
+        setAmount2(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
+        setCurrency2(currency2)
+    }
     
     return (
         <Container>
