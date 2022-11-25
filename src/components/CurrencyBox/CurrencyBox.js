@@ -12,72 +12,84 @@ import { format } from "../../utils/format"
 
 const CurrencyBox = () => {
     
-    const [amount1, setAmount1] = useState(1);
-    const [amount2, setAmount2] = useState(1);
-    const [currency1, setCurrency1] = useState( 'USD');
-    const [currency2, setCurrency2] = useState( 'PLN');
+    const [amountOne, setAmountOne] = useState(1);
+    const [amountTwo, setAmountTwo] = useState(1);
+    const [currencyOne, setCurrencyOne] = useState( 'USD');
+    const [currencyTwo, setCurrencyTwo] = useState( 'PLN');
     const [conversion_rates, setConversion_rates] = useState([]);
+    const [isLoading, setLoading] = useState(false);
+    const [isError, setError] = useState(false)
    
     
     
     useEffect(() => {
       
-      axios.get("https://v6.exchangerate-api.com/v6/5f3fee8abd2ef54e63a6a8eb/latest/USD")
-      .then(response => {
-        setConversion_rates(response.data.conversion_rates)
-      })
-      .catch((error => {
-        console.log("error", error);
-      }))
+      const fetchData = async () => {
+      
+          setLoading(true)
+          
+          try {
+            const response = await axios("https://v6.exchangerate-api.com/v6/5f3fee8abd2ef54e63a6a8eb/latest/USD")
+            setConversion_rates(response.data.conversion_rates)     
+          }
+          catch(error) {
+            setError(true)
+          }
+          setLoading(false)
+        }
+          fetchData()
+          
     }, []);
     
     useEffect(()=> {
       if(!!conversion_rates) {
         function init() {
-          handleAmount1Change(1);
+          handleAmountOneChange(1);
         }
         init();
       }
     }, [conversion_rates])
     
         
-    const  handleAmount1Change = (amount1) => {
-        setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
-        setAmount1(amount1)
+    const  handleAmountOneChange = (amountOne) => {
+        setAmountTwo(format(amountOne * conversion_rates[currencyTwo] / conversion_rates[currencyOne]));
+        setAmountOne(amountOne)
     }
         
-    const  handleCurrency1Change = (currency1) => {
-        setAmount2(format(amount1 * conversion_rates[currency2] / conversion_rates[currency1]));
-        setCurrency1(currency1)
+    const  handleCurrencyOneChange = (currencyOne) => {
+        setAmountTwo(format(amountOne * conversion_rates[currencyTwo] / conversion_rates[currencyOne]));
+        setCurrencyOne(currencyOne)
     }
         
-    const  handleAmount2Change = (amount2) => {
-        setAmount1(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
-        setAmount2(amount2)
+    const  handleAmountTwoChange = (amountTwo) => {
+        setAmountOne(format(amountTwo * conversion_rates[currencyOne] / conversion_rates[currencyTwo]));
+        setAmountTwo(amountTwo)
     }
         
-    const  handleCurrency2Change = (currency2) => {
-        setAmount2(format(amount2 * conversion_rates[currency1] / conversion_rates[currency2]));
-        setCurrency2(currency2)
+    const  handleCurrencyTwoChange = (currencyTwo) => {
+        setAmountTwo(format(amountTwo * conversion_rates[currencyOne] / conversion_rates[currencyTwo]));
+        setCurrencyTwo(currencyTwo)
     }
     
     return (
         <Container>
+            {isLoading && <h3 className={styles.alert}>Loading...</h3>}
+            {isError  && <h3 className={styles.alert}>Something went wrong</h3>}
             <FcCurrencyExchange  className={styles.icon} size="190px" />
             <Title/>
             <CurrencyInput 
-                onAmountChange={handleAmount1Change}
-                onCurrencyChange={handleCurrency1Change}
+                onAmountChange={handleAmountOneChange}
+                onCurrencyChange={handleCurrencyOneChange}
                 currencies={Object.keys(conversion_rates)} 
-                amount={amount1} 
-                currency={currency1}         
+                amount={amountOne} 
+                currency={currencyOne}         
             />
             <CurrencyInput 
-                onAmountChange={handleAmount2Change}
-                onCurrencyChange={handleCurrency2Change}
+                onAmountChange={handleAmountTwoChange}
+                onCurrencyChange={handleCurrencyTwoChange}
                 currencies={Object.keys(conversion_rates)} 
-                amount={amount2} 
-                currency={currency2} 
+                amount={amountTwo} 
+                currency={currencyTwo} 
             />
         </Container>
       );
